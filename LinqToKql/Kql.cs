@@ -33,7 +33,7 @@ namespace LinqToKql
 
             var tableName = GetTableName<T>();
 
-            return $"{tableName} {result}";
+            return $"{tableName}{result}";
         }
 
         private static string GetTableName<T>()

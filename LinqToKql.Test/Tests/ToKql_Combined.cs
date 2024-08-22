@@ -11,6 +11,8 @@ namespace LinqToKql.Test.Tests
             var q = Kql.Create<AzureResource>().Where(x => x.name == "test" || x.name == "test2").OrderBy(x => x.name);
 
             var kql = q.ToKql();
+
+            Assert.AreEqual("resources | where name == 'test' or name == 'test2' | sort name", kql);
         }
     }
 }

@@ -8,6 +8,7 @@ namespace LinqToKql
     {
         private StringBuilder kqlAccumulator;
 
+        private const char DefaultQuote = '\'';
         public string Translate(Expression expression)
         {
             this.kqlAccumulator = new StringBuilder();
@@ -95,7 +96,7 @@ namespace LinqToKql
 
             if (node.Type == typeof(string))
             {
-                this.kqlAccumulator.Append($"\"{node.Value.ToString()}\"");
+                this.kqlAccumulator.Append($"{DefaultQuote}{node.Value.ToString()}{DefaultQuote}");
             }
 
             return node;
