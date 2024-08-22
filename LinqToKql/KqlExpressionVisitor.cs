@@ -30,11 +30,28 @@ namespace LinqToKql
         //    return base.ToString();
         //}
 
-        //[return: NotNullIfNotNull("node")]
-        //public override Expression? Visit(Expression? node)
-        //{
-        //    return base.Visit(node);
-        //}
+        [return: NotNullIfNotNull("node")]
+        public override Expression? Visit(Expression? node)
+        {
+            var method = node as MethodCallExpression;
+            if (method != null)
+            {
+
+                //switch(method.Method.Name)
+                //{
+                //    case "OrderBy":
+                //        this.kqlAccumulator.Append(" | order ");
+                //        break;
+                //    case "Where":
+                //        this.kqlAccumulator.Append(" | where ");
+                //        break;
+                //}
+
+                Visit(method.Arguments[0]);
+            }
+
+            return base.Visit(node);
+        }
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
@@ -135,10 +152,14 @@ namespace LinqToKql
         //    throw new NotImplementedException();
         //}
 
-        //protected override Expression VisitLambda<T>(Expression<T> node)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        protected override Expression VisitLambda<T>(Expression<T> node)
+        {
+            Visit(node.Body);
+
+            return node;
+
+            //throw new NotImplementedException();
+        }
 
         //protected override Expression VisitListInit(ListInitExpression node)
         //{
@@ -182,10 +203,23 @@ namespace LinqToKql
         //    throw new NotImplementedException();
         //}
 
-        ////protected override Expression VisitMethodCall(MethodCallExpression node)
-        ////{
-        ////    throw new NotImplementedException();
-        ////}
+        protected override Expression VisitMethodCall(MethodCallExpression node)
+        {
+
+            switch (node.Method.Name)
+            {
+                case "OrderBy":
+                    this.kqlAccumulator.Append(" | sort ");
+                    break;
+                case "Where":
+                    this.kqlAccumulator.Append(" | where ");
+                    break;
+            }
+
+            Visit(node.Arguments[1]);
+
+            return node;
+        }
 
         //protected override Expression VisitNew(NewExpression node)
         //{
