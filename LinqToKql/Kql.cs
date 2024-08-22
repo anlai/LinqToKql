@@ -1,4 +1,6 @@
-﻿namespace LinqToKql
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace LinqToKql
 {
     /// <summary>
     /// IQueryable to KQL extension methods
@@ -29,7 +31,20 @@
             var visitor = new KqlExpressionVisitor();
             var result = visitor.Translate(exp);
 
-            return result;
+            var tableName = GetTableName<T>();
+
+            return $"{tableName} {result}";
+        }
+
+        private static string GetTableName<T>()
+        {
+            var attr = typeof(T).GetCustomAttributes(typeof(TableAttribute), true).FirstOrDefault() as TableAttribute;
+            if (attr != null)
+            {
+                return attr.Name;
+            }
+
+            return typeof(T).Name;
         }
     }
 }
