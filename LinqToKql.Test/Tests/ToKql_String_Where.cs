@@ -57,7 +57,7 @@ namespace LinqToKql.Test
         }
 
         [TestMethod]
-        public void ToKql_WhereStringEqualsWithCompareMethod_Success()
+        public void ToKql_WhereStringEqualsOrdinalMethod_Success()
         {
             var q = Kql.Create<AzureResource>().Where(x => x.name.Equals("test", StringComparison.Ordinal));
 
@@ -67,7 +67,7 @@ namespace LinqToKql.Test
         }
 
         [TestMethod]
-        public void ToKql_WhereStringEqualsCaseInsensitiveMethod_Success()
+        public void ToKql_WhereStringEqualsOrdinalIgnoreCaseMethod_Success()
         {
             var q = Kql.Create<AzureResource>().Where(x => x.name.Equals("test", StringComparison.OrdinalIgnoreCase));
 
@@ -77,7 +77,7 @@ namespace LinqToKql.Test
         }
 
         [TestMethod]
-        public void ToKql_WhereStringNotEqualsCaseInsensitiveMethod_Success()
+        public void ToKql_WhereStringNotEqualsOrdinalIgnoreCaseMethod_Success()
         {
             var q = Kql.Create<AzureResource>().Where(x => !x.name.Equals("test", StringComparison.OrdinalIgnoreCase));
 
