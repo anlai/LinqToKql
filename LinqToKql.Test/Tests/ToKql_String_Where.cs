@@ -1,4 +1,5 @@
 ﻿using LinqToKql.Test.Models;
+using System.Linq;
 
 namespace LinqToKql.Test
 {
@@ -8,25 +9,90 @@ namespace LinqToKql.Test
     [TestClass]
     public class ToKql_String_Where
     {
+
+        #region Operand : ==
+
         [TestMethod]
-        public void ToKql_WhereStringEquals_Success()
+        public void ToKql_WhereStringEqualsOp_Success()
         {
             var q = Kql.Create<AzureResource>().Where(x => x.name == "test");
 
             var kql = q.ToKql();
 
-            Assert.AreEqual("resources | where name == \"test\"", kql);
+            Assert.AreEqual("resources | where name == 'test'", kql);
         }
 
         [TestMethod]
-        public void ToKql_WhereStringNotEquals_Success() 
+        public void ToKql_WhereStringNotEqualsOp_Success()
         {
             var q = Kql.Create<AzureResource>().Where(x => x.name != "test");
 
             var kql = q.ToKql();
 
-            Assert.AreEqual("resources | where name != \"test\"", kql);
+            Assert.AreEqual("resources | where name != 'test'", kql);
         }
+
+        #endregion
+
+        #region Method : Equals
+
+        [TestMethod]
+        public void ToKql_WhereStringEqualsMethod_Success()
+        {
+            var q = Kql.Create<AzureResource>().Where(x => x.name.Equals("test"));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual("resources | where name == 'test'", kql);
+        }
+
+        [TestMethod]
+        public void ToKql_WhereStringNotEqualsMethod_Success()
+        {
+            var q = Kql.Create<AzureResource>().Where(x => !x.name.Equals("test"));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual("resources | where name != 'test'", kql);
+        }
+
+        [TestMethod]
+        public void ToKql_WhereStringEqualsWithCompareMethod_Success()
+        {
+            var q = Kql.Create<AzureResource>().Where(x => x.name.Equals("test", StringComparison.Ordinal));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual("resources | where name == 'test'", kql);
+        }
+
+        [TestMethod]
+        public void ToKql_WhereStringEqualsCaseInsensitiveMethod_Success()
+        {
+            var q = Kql.Create<AzureResource>().Where(x => x.name.Equals("test", StringComparison.OrdinalIgnoreCase));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual("resources | where name =~ 'test'", kql);
+        }
+
+        [TestMethod]
+        public void ToKql_WhereStringNotEqualsCaseInsensitiveMethod_Success()
+        {
+            var q = Kql.Create<AzureResource>().Where(x => !x.name.Equals("test", StringComparison.OrdinalIgnoreCase));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual("resources | where name !~ 'test'", kql);
+        }
+
+        #endregion
+
+
+
+
+
+
 
         [TestMethod]
         public void ToKql_WhereStringInArrayInit_Success() 
