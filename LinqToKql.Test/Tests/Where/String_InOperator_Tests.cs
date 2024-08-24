@@ -109,17 +109,95 @@ namespace LinqToKql.Test.Tests.Where
         #endregion
 
         #region In List Case Insensitive
+
+        [TestMethod]
+        public void ToKql_WhereStringInCaseInsensitiveArrayInit_Success()
+        {
+            var q = Kql.Create<AzureResource>().Where(x => (new string[] { "test1", "test2" }).Contains(x.name, StringComparer.OrdinalIgnoreCase));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual(ResultNameInCaseInSensitiveList, kql);
+        }
+
+        [TestMethod]
+        public void ToKql_WhereStringInCaseInsensitiveListInit_Success()
+        {
+            var q = Kql.Create<AzureResource>().Where(x => new List<string> { "test1", "test2" }.Contains(x.name, StringComparer.OrdinalIgnoreCase));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual(ResultNameInCaseInSensitiveList, kql);
+        }
+
+        [TestMethod]
+        public void ToKql_WhereStringInCaseInsensitiveArray_Success()
+        {
+            var arr = new string[] { "test1", "test2" };
+            var q = Kql.Create<AzureResource>().Where(x => arr.Contains(x.name, StringComparer.OrdinalIgnoreCase));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual(ResultNameInCaseInSensitiveList, kql);
+        }
+
+        [TestMethod]
+        public void ToKql_WhereStringInCaseInsensitiveList_Success()
+        {
+            var list = new List<string> { "test1", "test2" };
+            var q = Kql.Create<AzureResource>().Where(x => list.Contains(x.name, StringComparer.OrdinalIgnoreCase));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual(ResultNameInCaseInSensitiveList, kql);
+        }
+
         #endregion
 
         #region Not In List Case Insensitive
+
+        [TestMethod]
+        public void ToKql_WhereStringNotInCaseInsensitiveArrayInit_Success()
+        {
+            var q = Kql.Create<AzureResource>().Where(x => !((new string[] { "test1", "test2" }).Contains(x.name, StringComparer.OrdinalIgnoreCase)));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual(ResultNameNotInCaseInSensitiveList, kql);
+        }
+
+        [TestMethod]
+        public void ToKql_WhereStringNotInCaseInsensitiveListInit_Success()
+        {
+            var q = Kql.Create<AzureResource>().Where(x => !(new List<string> { "test1", "test2" }.Contains(x.name, StringComparer.OrdinalIgnoreCase)));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual(ResultNameNotInCaseInSensitiveList, kql);
+        }
+
+        [TestMethod]
+        public void ToKql_WhereStringNotInCaseInsensitiveArray_Success()
+        {
+            var arr = new string[] { "test1", "test2" };
+            var q = Kql.Create<AzureResource>().Where(x => !arr.Contains(x.name, StringComparer.OrdinalIgnoreCase));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual(ResultNameNotInCaseInSensitiveList, kql);
+        }
+
+        [TestMethod]
+        public void ToKql_WhereStringNotInCaseInsensitiveList_Success()
+        {
+            var list = new List<string> { "test1", "test2" };
+            var q = Kql.Create<AzureResource>().Where(x => !list.Contains(x.name, StringComparer.OrdinalIgnoreCase));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual(ResultNameNotInCaseInSensitiveList, kql);
+        }
+
         #endregion
-
-
-
-
-
-
-
-
     }
 }
