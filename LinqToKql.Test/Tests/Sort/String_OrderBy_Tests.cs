@@ -1,12 +1,12 @@
 ﻿using LinqToKql.Test.Models;
 
-namespace LinqToKql.Test
+namespace LinqToKql.Test.Tests.Sort
 {
     [TestClass]
-    public class ToKql_String_OrderBy
+    public class String_OrderBy_Tests
     {
         [TestMethod]
-        public void ToKql_OrderByStringAsc_Success() 
+        public void ToKql_OrderByStringAsc_Success()
         {
             var q = Kql.Create<AzureResource>().OrderBy(x => x.name);
 
@@ -15,7 +15,7 @@ namespace LinqToKql.Test
             Assert.AreEqual("resources | sort name asc", kql);
         }
         [TestMethod]
-        public void ToKql_OrderByStringDesc_Success() 
+        public void ToKql_OrderByStringDesc_Success()
         {
             var q = Kql.Create<AzureResource>().OrderByDescending(x => x.name);
 

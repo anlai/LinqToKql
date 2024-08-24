@@ -5,13 +5,33 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace LinqToKql
 {
     internal class KqlWhereExpressionVisitor : BaseExpressionVisitor
     {
         private const char DefaultQuote = '\'';
+        private readonly Type[] TypesRequireQuotes = [typeof(string), typeof(Guid)];
+        private readonly IEnumerable<Type> ListTypesRequireQuotes;
+        private readonly StringComparison[] CaseInsensitiveStringCompares = [
+                            StringComparison.InvariantCultureIgnoreCase,
+                            StringComparison.InvariantCultureIgnoreCase,
+                            StringComparison.OrdinalIgnoreCase ];
+
         private ExpressionType? Modifier;
+
+        public KqlWhereExpressionVisitor()
+        {
+            var results = new List<Type>();
+            foreach (var type in TypesRequireQuotes)
+            {
+                results.Add(typeof(IEnumerable<>).MakeGenericType(type));
+                results.Add(type.MakeArrayType());
+                results.Add(typeof(List<>).MakeGenericType(type));
+            }
+            ListTypesRequireQuotes = results;
+        }
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
@@ -176,6 +196,23 @@ namespace LinqToKql
         {
             switch (node.Method.Name)
             {
+                case "Contains":
+
+                    //var items = node.Object;
+                    //Expression operand;
+
+                    // when node.Object is null, it is a static method (e.g. Enumerable.Contains(source, item))
+                    // otherwise it is an instance contains
+                    var list = node.Object != null ? node.Object : node.Arguments[0];
+                    var operand = node.Object != null ? node.Arguments[0] : node.Arguments[1];
+
+                    Visit(operand);
+                    ApplyNotModifier(" in (", " !in (");
+                    //Visit(list);
+                    EnumerateListValues(list);
+                    kqlAccumulator.Append(")");
+
+                    break;
                 case "Equals":
                     Visit(node.Object as MemberExpression);
 
@@ -183,45 +220,18 @@ namespace LinqToKql
                     if (node.Arguments.Count == 2)
                     {
                         var compare = (StringComparison)(node.Arguments.Last() as ConstantExpression).Value;
-                        if (new StringComparison[] { 
-                            StringComparison.InvariantCultureIgnoreCase, 
-                            StringComparison.InvariantCultureIgnoreCase, 
-                            StringComparison.OrdinalIgnoreCase }.Contains(compare))
+                        if (CaseInsensitiveStringCompares.Contains(compare))
                         {
-                            if (Modifier.HasValue && Modifier.Value == ExpressionType.Not)
-                            {
-                                kqlAccumulator.Append(" !~ ");
-                            }
-                            else
-                            {
-                                kqlAccumulator.Append(" =~ ");
-                            }
+                            ApplyNotModifier(" =~ ", " !~ ");
                         }
                         else
                         {
-                            if (Modifier.HasValue && Modifier.Value == ExpressionType.Not)
-                            {
-                                kqlAccumulator.Append(" != ");
-                            }
-                            else
-                            {
-                                kqlAccumulator.Append(" == ");
-                            }
+                            ApplyNotModifier(" == ", " != ");
                         }
                     }
                     else
                     {
-                        if (Modifier.HasValue && Modifier.Value == ExpressionType.Not)
-                        {
-                            kqlAccumulator.Append(" != ");
-                            Modifier = null;
-                        }
-                        else
-                        {
-                            kqlAccumulator.Append(" == ");
-                        }
-
-                        
+                        ApplyNotModifier(" == ", " != ");
                     }
 
                     Visit(node.Arguments.First());
@@ -229,6 +239,29 @@ namespace LinqToKql
             }
 
             return node;
+        }
+
+        /// <summary>
+        /// Enumerates the values of an array
+        /// </summary>
+        /// <param name="expr"></param>
+        /// <exception cref="NotSupportedException"></exception>
+        private void EnumerateListValues(Expression expr)
+        {
+            // when new array is invoked, need to evaluate the values
+            var compiledList = Expression.Lambda(expr).Compile().DynamicInvoke() as System.Collections.IEnumerable;
+            if (compiledList == null)
+            {
+                throw new NotSupportedException("Values does not implement IEnumerable");
+            }
+
+            var values = compiledList.Cast<string>().ToList();
+
+            var requiresQuotes = ListTypesRequireQuotes.Contains(expr.Type);
+
+            var results = string.Join(", ", values.Select(x => requiresQuotes ? $"'{x}'" : x.ToString()));
+
+            kqlAccumulator.Append(results);
         }
 
         protected override Expression VisitNew(NewExpression node)
@@ -276,5 +309,20 @@ namespace LinqToKql
             Visit(node.Operand);
             return node;
         }
+
+        #region Helper Methods
+
+        public void ApplyNotModifier(string ifNoModifier, string ifHasModifier)
+        {
+            kqlAccumulator.Append(
+                Modifier.HasValue && Modifier.Value == ExpressionType.Not ?
+                    ifHasModifier :
+                    ifNoModifier
+                );
+
+            Modifier = null;
+        }
+
+        #endregion
     }
 }
