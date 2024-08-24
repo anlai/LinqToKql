@@ -1,9 +1,4 @@
 ﻿using LinqToKql.Test.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LinqToKql.Test.Tests.Where
 {
@@ -16,26 +11,58 @@ namespace LinqToKql.Test.Tests.Where
     [TestClass]
     public class String_InOperator_Tests
     {
+        private const string ResultNameInList = "resources | where name in ('test1', 'test2')";
+        private const string ResultNameNotInList = "resources | where name !in ('test1', 'test2')";
+        private const string ResultNameInCaseInSensitiveList = "resources | where name in~ ('test1', 'test2')";
+        private const string ResultNameNotInCaseInSensitiveList = "resources | where name !in~ ('test1', 'test2')";
+
+        #region In List
+
         [TestMethod]
         public void ToKql_WhereStringInArrayInit_Success()
         {
-            var q = Kql.Create<AzureResource>().Where(x => (new string[] { "test", "test2" }).Contains(x.name));
+            var q = Kql.Create<AzureResource>().Where(x => (new string[] { "test1", "test2" }).Contains(x.name));
 
             var kql = q.ToKql();
 
-            Assert.AreEqual("resources | where name in ('test', 'test2')", kql);
+            Assert.AreEqual(ResultNameInList, kql);
+        }
+
+        [TestMethod]
+        public void ToKql_WhereStringInListInit_Success()
+        {
+            var q = Kql.Create<AzureResource>().Where(x => new List<string> { "test1", "test2" }.Contains(x.name));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual(ResultNameInList, kql);
         }
 
         [TestMethod]
         public void ToKql_WhereStringInArray_Success()
         {
-            var arr = new string[] { "test" };
+            var arr = new string[] { "test1", "test2" };
             var q = Kql.Create<AzureResource>().Where(x => arr.Contains(x.name));
 
             var kql = q.ToKql();
 
-            Assert.AreEqual("resources | where name in ('test')", kql);
+            Assert.AreEqual(ResultNameInList, kql);
         }
+
+        [TestMethod]
+        public void ToKql_WhereStringInList_Success()
+        {
+            var list = new List<string> { "test1", "test2" };
+            var q = Kql.Create<AzureResource>().Where(x => list.Contains(x.name));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual(ResultNameInList, kql);
+        }
+
+        #endregion
+
+        #region Not In List
 
         [TestMethod]
         public void ToKql_WhereStringNotInArrayInit_Success()
@@ -44,18 +71,55 @@ namespace LinqToKql.Test.Tests.Where
 
             var kql = q.ToKql();
 
-            Assert.AreEqual("resources | where name !in ('test1', 'test2')", kql);
+            Assert.AreEqual(ResultNameNotInList, kql);
+        }
+
+        [TestMethod]
+        public void ToKql_WhereStringNotInListInit_Success()
+        {
+            var q = Kql.Create<AzureResource>().Where(x => !(new List<string> { "test1", "test2" }.Contains(x.name)));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual(ResultNameNotInList, kql);
         }
 
         [TestMethod]
         public void ToKql_WhereStringNotInArray_Success()
         {
-            var arr = new string[] { "test" };
+            var arr = new string[] { "test1", "test2" };
             var q = Kql.Create<AzureResource>().Where(x => !arr.Contains(x.name));
 
             var kql = q.ToKql();
 
-            Assert.AreEqual("resources | where name !in ('test')", kql);
+            Assert.AreEqual(ResultNameNotInList, kql);
         }
+
+        [TestMethod]
+        public void ToKql_WhereStringNotInList_Success()
+        {
+            var list = new List<string> { "test1", "test2" };
+            var q = Kql.Create<AzureResource>().Where(x => !list.Contains(x.name));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual(ResultNameNotInList, kql);
+        }
+
+        #endregion
+
+        #region In List Case Insensitive
+        #endregion
+
+        #region Not In List Case Insensitive
+        #endregion
+
+
+
+
+
+
+
+
     }
 }
