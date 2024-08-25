@@ -17,6 +17,8 @@ namespace LinqToKql.Test.Models
         public string resourceGroup { get; set; }
         public string subscriptionId { get; set; }
 
+        public int instances { get; set; }
+
         public AzureResourceProperties properties { get; set; }
         public Dictionary<string,string> tags { get; set; }
 

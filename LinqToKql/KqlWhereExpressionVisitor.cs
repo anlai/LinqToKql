@@ -74,14 +74,16 @@ namespace LinqToKql
 
         protected override Expression VisitConstant(ConstantExpression node)
         {
-            if (node.Type == typeof(string))
+            if (TypesRequireQuotes.Contains(node.Type))
             {
                 this.kqlAccumulator.Append($"{DefaultQuote}{node.Value.ToString()}{DefaultQuote}");
             }
+            else
+            {
+                kqlAccumulator.Append($"{node.Value}");
+            }
 
             return node;
-
-            //return base.VisitConstant(node);
         }
 
         protected override Expression VisitDebugInfo(DebugInfoExpression node)
