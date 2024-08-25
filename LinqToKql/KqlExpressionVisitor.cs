@@ -9,6 +9,8 @@ namespace LinqToKql
 
         private StringBuilder kqlAccumulator;
 
+        private string LastMethodCalled;
+
         public string Translate(Expression expression)
         {
             kqlAccumulator = new StringBuilder();
@@ -20,33 +22,38 @@ namespace LinqToKql
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
+
+            if (node.Arguments.Count > 1)
+            {
+                Visit(node.Arguments[0]);
+            }
+
+            var orderByVisitor = new KqlOrderByExpressionVisitor();
+            
             switch (node.Method.Name)
             {
                 case "OrderBy":
-                    this.kqlAccumulator.Append(" | sort ");
-                    Visit(node.Arguments[1]);
+                    kqlAccumulator.Append($" | sort {orderByVisitor.Translate(node.Arguments[1])} asc");
+                    break;
+                case "ThenBy":
+                    kqlAccumulator.Append($", {orderByVisitor.Translate(node.Arguments[1])} asc");
+                    break;
+                case "OrderByDescending":
+                    kqlAccumulator.Append($" | sort {orderByVisitor.Translate(node.Arguments[1])} desc");
+                    break;
+                case "ThenByDescending":
+                    kqlAccumulator.Append($", {orderByVisitor.Translate(node.Arguments[1])} desc");
                     break;
                 case "Where":
                     kqlAccumulator.Append(" | where ");
                     var whereVisitor = new KqlWhereExpressionVisitor();
                     kqlAccumulator.Append(whereVisitor.Translate(node.Arguments[1]));
                     break;
-
-                //case "Contains":
-                //    throw new NotImplementedException();
-                //    break;
-                //case "Equals":
-
-                //    //var memberExpression = node.Object as MemberExpression;
-                //    //Visit(memberExpression);
-
-                //    //Visit(node.Arguments.First());
-
-                //    break;
                 default:
                     throw new NotImplementedException($"method call for {node.Method.Name} is not supported");
             }
 
+            LastMethodCalled = node.Method.Name;
             return node;
         }
     }

@@ -1,12 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
 
 namespace LinqToKql
 {
-    internal class KqlOrderByExpressionVisitor
+    internal class KqlOrderByExpressionVisitor : BaseExpressionVisitor
     {
+        protected override Expression VisitMethodCall(MethodCallExpression node)
+        {
+            return node;
+        }
+
+        protected override Expression VisitMember(MemberExpression node)
+        {
+            this.kqlAccumulator.Append(node.Member.Name);
+
+            return node;
+        }
     }
 }
