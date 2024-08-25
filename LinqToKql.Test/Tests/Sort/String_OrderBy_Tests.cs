@@ -26,6 +26,16 @@ namespace LinqToKql.Test.Tests.Sort
         }
 
         [TestMethod]
+        public void ToKql_OrderByStringDescSecondAscending_Success()
+        {
+            var q = Kql.Create<AzureResource>().OrderByDescending(x => x.name).ThenBy(x => x.location);
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual("resources | sort name desc, location asc", kql);
+        }
+
+        [TestMethod]
         public void To_KqlOrderByTwoProperties_Success()
         {
             var q = Kql.Create<AzureResource>().OrderBy(x => x.name).ThenBy(x => x.location);

@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Text;
 
 namespace LinqToKql
@@ -8,8 +7,6 @@ namespace LinqToKql
     {
 
         private StringBuilder kqlAccumulator;
-
-        private string LastMethodCalled;
 
         public string Translate(Expression expression)
         {
@@ -22,7 +19,6 @@ namespace LinqToKql
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-
             if (node.Arguments.Count > 1)
             {
                 Visit(node.Arguments[0]);
@@ -52,7 +48,6 @@ namespace LinqToKql
                     throw new NotImplementedException($"method call for {node.Method.Name} is not supported");
             }
 
-            LastMethodCalled = node.Method.Name;
             return node;
         }
     }
