@@ -213,14 +213,28 @@ namespace LinqToKql
 
                     break;
                 case "Equals":
-                    Visit(node.Object as MemberExpression);
+                    // static class comparison
+                    if (node.Object == null)
+                    {
+                        Visit(node.Arguments[0]);
+                        var eqStaticCompare = node.Arguments.Count == 3 ? Evaluate<StringComparison>(node.Arguments.Last()) : default(StringComparison);
+                        var equalsStaticNe = CaseInsensitiveStringCompares.Contains(eqStaticCompare) ? "!~" : "!=";
+                        var equalsStaticEq = CaseInsensitiveStringCompares.Contains(eqStaticCompare) ? "=~" : "==";
+                        ApplyNotModifier($" {equalsStaticEq} ", $" {equalsStaticNe} ");
+                        Visit(node.Arguments[1]);
+                    }
+                    // instnace comparison
+                    else
+                    {
+                        Visit(node.Object as MemberExpression);
 
-                    var eqCompare = node.Arguments.Count == 2 ? Evaluate<StringComparison>(node.Arguments.Last()) : default(StringComparison);
-                    var equalsEq = CaseInsensitiveStringCompares.Contains(eqCompare) ? "=~" : "==";
-                    var equalsNe = CaseInsensitiveStringCompares.Contains(eqCompare) ? "!~" : "!=";
-                    ApplyNotModifier($" {equalsEq} ", $" {equalsNe} ");
+                        var eqCompare = node.Arguments.Count == 2 ? Evaluate<StringComparison>(node.Arguments.Last()) : default(StringComparison);
+                        var equalsEq = CaseInsensitiveStringCompares.Contains(eqCompare) ? "=~" : "==";
+                        var equalsNe = CaseInsensitiveStringCompares.Contains(eqCompare) ? "!~" : "!=";
+                        ApplyNotModifier($" {equalsEq} ", $" {equalsNe} ");
 
-                    Visit(node.Arguments.First());
+                        Visit(node.Arguments.First());
+                    }
                     break;
             }
 

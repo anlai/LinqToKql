@@ -96,5 +96,61 @@ namespace LinqToKql.Test.Tests.Where
         }
 
         #endregion
+
+        #region Method: Equals Static
+
+        [TestMethod]
+        public void ToKql_WhereStringEqualsStaticMethod_Success()
+        {
+            var q = Kql.Create<AzureResource>().Where(x => string.Equals(x.name, "test"));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual(ResultEquals, kql);
+        }
+
+        [TestMethod]
+        public void ToKql_WhereStringNotEqualsStaticMethod_Success()
+        {
+            var q = Kql.Create<AzureResource>().Where(x => !string.Equals(x.name, "test"));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual(ResultNotEquals, kql);
+        }
+
+        [DataRow(StringComparison.Ordinal, ResultEquals)]
+        [DataRow(StringComparison.OrdinalIgnoreCase, ResultEqualsCaseInsensitive)]
+        [DataRow(StringComparison.CurrentCulture, ResultEquals)]
+        [DataRow(StringComparison.CurrentCultureIgnoreCase, ResultEqualsCaseInsensitive)]
+        [DataRow(StringComparison.InvariantCulture, ResultEquals)]
+        [DataRow(StringComparison.InvariantCultureIgnoreCase, ResultEqualsCaseInsensitive)]
+        [DataTestMethod]
+        public void ToKql_WhereStringEqualsWithStringComparisonStaticMethod_Success(StringComparison comparison, string result)
+        {
+            var q = Kql.Create<AzureResource>().Where(x => string.Equals(x.name, "test", comparison));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual(result, kql);
+        }
+
+        [DataRow(StringComparison.Ordinal, ResultNotEquals)]
+        [DataRow(StringComparison.OrdinalIgnoreCase, ResultNotEqualsCaseInsensitive)]
+        [DataRow(StringComparison.CurrentCulture, ResultNotEquals)]
+        [DataRow(StringComparison.CurrentCultureIgnoreCase, ResultNotEqualsCaseInsensitive)]
+        [DataRow(StringComparison.InvariantCulture, ResultNotEquals)]
+        [DataRow(StringComparison.InvariantCultureIgnoreCase, ResultNotEqualsCaseInsensitive)]
+        [DataTestMethod]
+        public void ToKql_WhereStringNotEqualsWithStringComparisonStaticMethod_Success(StringComparison comparison, string result)
+        {
+            var q = Kql.Create<AzureResource>().Where(x => !string.Equals(x.name, "test", comparison));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual(result, kql);
+        }
+
+        #endregion
     }
 }
