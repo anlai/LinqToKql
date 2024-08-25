@@ -232,12 +232,7 @@ namespace LinqToKql
         /// <exception cref="NotSupportedException"></exception>
         private void EnumerateListValues(Expression expr)
         {
-            // when new array is invoked, need to evaluate the values
-            var compiledList = Expression.Lambda(expr).Compile().DynamicInvoke() as System.Collections.IEnumerable;
-            if (compiledList == null)
-            {
-                throw new NotSupportedException("Values does not implement IEnumerable");
-            }
+            var compiledList = Evaluate<System.Collections.IEnumerable>(expr);
 
             var values = compiledList.Cast<string>().ToList();
 
