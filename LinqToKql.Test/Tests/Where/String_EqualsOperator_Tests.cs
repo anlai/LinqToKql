@@ -11,6 +11,12 @@ namespace LinqToKql.Test.Tests.Where
     [TestClass]
     public class String_EqualsOperator_Tests
     {
+
+        private const string ResultEquals = "resources | where name == 'test'";
+        private const string ResultNotEquals = "resources | where name != 'test'";
+        private const string ResultEqualsCaseInsensitive = "resources | where name =~ 'test'";
+        private const string ResultNotEqualsCaseInsensitive = "resources | where name !~ 'test'";
+
         #region Operand : ==
 
         [TestMethod]
@@ -20,7 +26,7 @@ namespace LinqToKql.Test.Tests.Where
 
             var kql = q.ToKql();
 
-            Assert.AreEqual("resources | where name == 'test'", kql);
+            Assert.AreEqual(ResultEquals, kql);
         }
 
         [TestMethod]
@@ -30,7 +36,7 @@ namespace LinqToKql.Test.Tests.Where
 
             var kql = q.ToKql();
 
-            Assert.AreEqual("resources | where name != 'test'", kql);
+            Assert.AreEqual(ResultNotEquals, kql);
         }
 
         #endregion
@@ -44,7 +50,7 @@ namespace LinqToKql.Test.Tests.Where
 
             var kql = q.ToKql();
 
-            Assert.AreEqual("resources | where name == 'test'", kql);
+            Assert.AreEqual(ResultEquals, kql);
         }
 
         [TestMethod]
@@ -54,37 +60,39 @@ namespace LinqToKql.Test.Tests.Where
 
             var kql = q.ToKql();
 
-            Assert.AreEqual("resources | where name != 'test'", kql);
+            Assert.AreEqual(ResultNotEquals, kql);
         }
 
-        [TestMethod]
-        public void ToKql_WhereStringEqualsOrdinalMethod_Success()
+        [DataRow(StringComparison.Ordinal, ResultEquals)]
+        [DataRow(StringComparison.OrdinalIgnoreCase, ResultEqualsCaseInsensitive)]
+        [DataRow(StringComparison.CurrentCulture, ResultEquals)]
+        [DataRow(StringComparison.CurrentCultureIgnoreCase, ResultEqualsCaseInsensitive)]
+        [DataRow(StringComparison.InvariantCulture, ResultEquals)]
+        [DataRow(StringComparison.InvariantCultureIgnoreCase, ResultEqualsCaseInsensitive)]
+        [DataTestMethod]
+        public void ToKql_WhereStringEqualsWithStringComparison_Success(StringComparison comparison, string result)
         {
-            var q = Kql.Create<AzureResource>().Where(x => x.name.Equals("test", StringComparison.Ordinal));
+            var q = Kql.Create<AzureResource>().Where(x => x.name.Equals("test", comparison));
 
             var kql = q.ToKql();
 
-            Assert.AreEqual("resources | where name == 'test'", kql);
+            Assert.AreEqual(result, kql);
         }
 
-        [TestMethod]
-        public void ToKql_WhereStringEqualsOrdinalIgnoreCaseMethod_Success()
+        [DataRow(StringComparison.Ordinal, ResultNotEquals)]
+        [DataRow(StringComparison.OrdinalIgnoreCase, ResultNotEqualsCaseInsensitive)]
+        [DataRow(StringComparison.CurrentCulture, ResultNotEquals)]
+        [DataRow(StringComparison.CurrentCultureIgnoreCase, ResultNotEqualsCaseInsensitive)]
+        [DataRow(StringComparison.InvariantCulture, ResultNotEquals)]
+        [DataRow(StringComparison.InvariantCultureIgnoreCase, ResultNotEqualsCaseInsensitive)]
+        [DataTestMethod]
+        public void ToKql_WhereStringNotEqualsWithStringComparison_Success(StringComparison comparison, string result)
         {
-            var q = Kql.Create<AzureResource>().Where(x => x.name.Equals("test", StringComparison.OrdinalIgnoreCase));
+            var q = Kql.Create<AzureResource>().Where(x => !x.name.Equals("test", comparison));
 
             var kql = q.ToKql();
 
-            Assert.AreEqual("resources | where name =~ 'test'", kql);
-        }
-
-        [TestMethod]
-        public void ToKql_WhereStringNotEqualsOrdinalIgnoreCaseMethod_Success()
-        {
-            var q = Kql.Create<AzureResource>().Where(x => !x.name.Equals("test", StringComparison.OrdinalIgnoreCase));
-
-            var kql = q.ToKql();
-
-            Assert.AreEqual("resources | where name !~ 'test'", kql);
+            Assert.AreEqual(result, kql);
         }
 
         #endregion

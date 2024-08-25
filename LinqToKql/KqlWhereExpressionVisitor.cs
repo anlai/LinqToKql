@@ -14,7 +14,7 @@ namespace LinqToKql
         private readonly IList<Type> ListTypesRequireQuotes;
         private readonly StringComparison[] CaseInsensitiveStringCompares = [
                             StringComparison.InvariantCultureIgnoreCase,
-                            StringComparison.InvariantCultureIgnoreCase,
+                            StringComparison.CurrentCultureIgnoreCase,
                             StringComparison.OrdinalIgnoreCase ];
         private readonly StringComparer[] CaseInsensitiveStringComparers;
 
