@@ -4,8 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace LinqToKql
 {
@@ -13,24 +11,25 @@ namespace LinqToKql
     {
         private const char DefaultQuote = '\'';
         private readonly Type[] TypesRequireQuotes = [typeof(string), typeof(Guid)];
-        private readonly IEnumerable<Type> ListTypesRequireQuotes;
+        private readonly IList<Type> ListTypesRequireQuotes;
         private readonly StringComparison[] CaseInsensitiveStringCompares = [
                             StringComparison.InvariantCultureIgnoreCase,
                             StringComparison.InvariantCultureIgnoreCase,
                             StringComparison.OrdinalIgnoreCase ];
+        private readonly StringComparer[] CaseInsensitiveStringComparers;
+
 
         private ExpressionType? Modifier;
 
         public KqlWhereExpressionVisitor()
         {
-            var results = new List<Type>();
-            foreach (var type in TypesRequireQuotes)
-            {
-                results.Add(typeof(IEnumerable<>).MakeGenericType(type));
-                results.Add(type.MakeArrayType());
-                results.Add(typeof(List<>).MakeGenericType(type));
-            }
-            ListTypesRequireQuotes = results;
+            ListTypesRequireQuotes = TypesRequireQuotes.Select(type => new [] {
+                typeof(IEnumerable<>).MakeGenericType(type),
+                type.MakeArrayType(),
+                typeof(List<>).MakeGenericType(type)
+            }).SelectMany(x => x).ToList();
+
+            CaseInsensitiveStringComparers = CaseInsensitiveStringCompares.Select(x => StringComparer.FromComparison(x)).ToArray();
         }
 
         protected override Expression VisitBinary(BinaryExpression node)
@@ -197,18 +196,16 @@ namespace LinqToKql
             switch (node.Method.Name)
             {
                 case "Contains":
-
-                    //var items = node.Object;
-                    //Expression operand;
-
                     // when node.Object is null, it is a static method (e.g. Enumerable.Contains(source, item))
                     // otherwise it is an instance contains
                     var list = node.Object != null ? node.Object : node.Arguments[0];
                     var operand = node.Object != null ? node.Arguments[0] : node.Arguments[1];
+                    var containsCompare = node.Arguments.Count == 3 ? Evaluate<StringComparer>(node.Arguments.Last()) : default(StringComparer);
 
                     Visit(operand);
-                    ApplyNotModifier(" in (", " !in (");
-                    //Visit(list);
+                    var eq = CaseInsensitiveStringComparers.Contains(containsCompare) ? "in~" : "in";
+                    var ne = CaseInsensitiveStringComparers.Contains(containsCompare) ? "!in~" : "!in";
+                    ApplyNotModifier($" {eq} (", $" {ne} (");
                     EnumerateListValues(list);
                     kqlAccumulator.Append(")");
 
@@ -216,23 +213,10 @@ namespace LinqToKql
                 case "Equals":
                     Visit(node.Object as MemberExpression);
 
-                    // in equals, second parameter is the StringComparison
-                    if (node.Arguments.Count == 2)
-                    {
-                        var compare = (StringComparison)(node.Arguments.Last() as ConstantExpression).Value;
-                        if (CaseInsensitiveStringCompares.Contains(compare))
-                        {
-                            ApplyNotModifier(" =~ ", " !~ ");
-                        }
-                        else
-                        {
-                            ApplyNotModifier(" == ", " != ");
-                        }
-                    }
-                    else
-                    {
-                        ApplyNotModifier(" == ", " != ");
-                    }
+                    var eqCompare = node.Arguments.Count == 2 ? Evaluate<StringComparison>(node.Arguments.Last()) : default(StringComparison);
+                    var equalsEq = CaseInsensitiveStringCompares.Contains(eqCompare) ? "=~" : "==";
+                    var equalsNe = CaseInsensitiveStringCompares.Contains(eqCompare) ? "!~" : "!=";
+                    ApplyNotModifier($" {equalsEq} ", $" {equalsNe} ");
 
                     Visit(node.Arguments.First());
                     break;
@@ -321,6 +305,11 @@ namespace LinqToKql
                 );
 
             Modifier = null;
+        }
+
+        public T Evaluate<T>(Expression expression)
+        {
+            return (T)Expression.Lambda(expression).Compile().DynamicInvoke();
         }
 
         #endregion
