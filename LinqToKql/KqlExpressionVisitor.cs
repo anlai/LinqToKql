@@ -28,6 +28,7 @@ namespace LinqToKql
                 Visit(node.Arguments[0]);
             }
 
+            var whereVisitor = new KqlWhereExpressionVisitor();
             var orderByVisitor = new KqlOrderByExpressionVisitor();
             
             switch (node.Method.Name)
@@ -45,9 +46,7 @@ namespace LinqToKql
                     kqlAccumulator.Append($", {orderByVisitor.Translate(node.Arguments[1])} desc");
                     break;
                 case "Where":
-                    kqlAccumulator.Append(" | where ");
-                    var whereVisitor = new KqlWhereExpressionVisitor();
-                    kqlAccumulator.Append(whereVisitor.Translate(node.Arguments[1]));
+                    kqlAccumulator.Append($" | where {whereVisitor.Translate(node.Arguments[1])}");
                     break;
                 default:
                     throw new NotImplementedException($"method call for {node.Method.Name} is not supported");
