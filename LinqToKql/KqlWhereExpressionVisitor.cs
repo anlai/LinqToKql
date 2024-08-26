@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
+﻿using System.Linq.Expressions;
 
 namespace LinqToKql
 {
@@ -52,7 +47,7 @@ namespace LinqToKql
                     break;
             }
 
-            this.Visit(node.Right);
+            kqlAccumulator.Append(ConvertToQueryValue(node.Right));
 
             return node;
         }
@@ -74,14 +69,7 @@ namespace LinqToKql
 
         protected override Expression VisitConstant(ConstantExpression node)
         {
-            if (TypesRequireQuotes.Contains(node.Type))
-            {
-                this.kqlAccumulator.Append($"{DefaultQuote}{node.Value.ToString()}{DefaultQuote}");
-            }
-            else
-            {
-                kqlAccumulator.Append($"{node.Value}");
-            }
+            kqlAccumulator.Append(ConvertToQueryValue(node.Value, node.Type));
 
             return node;
         }
@@ -236,6 +224,9 @@ namespace LinqToKql
                         Visit(node.Arguments.First());
                     }
                     break;
+                case "Parse":
+                    kqlAccumulator.Append(ConvertToQueryValue(node));
+                    break;
             }
 
             return node;
@@ -252,16 +243,16 @@ namespace LinqToKql
 
             var values = compiledList.Cast<string>().ToList();
 
-            var requiresQuotes = ListTypesRequireQuotes.Contains(expr.Type);
-
-            var results = string.Join(", ", values.Select(x => requiresQuotes ? $"'{x}'" : x.ToString()));
+            var results = string.Join(", ", values.Select(x => ConvertToQueryValue(x, expr.Type) ));
 
             kqlAccumulator.Append(results);
         }
 
         protected override Expression VisitNew(NewExpression node)
         {
-            throw new NotImplementedException();
+            kqlAccumulator.Append(ConvertToQueryValue(node));
+
+            return node;
         }
 
         protected override Expression VisitNewArray(NewArrayExpression node)
@@ -316,6 +307,31 @@ namespace LinqToKql
                 );
 
             Modifier = null;
+        }
+
+        private string ConvertToQueryValue(Expression expression)
+        {
+            var value = EvaluateToString(expression);
+            return ConvertToQueryValue(value, expression.Type);
+        }
+
+        private string ConvertToQueryValue(object value, Type type, char? quoteChar = null)
+        {
+            var requiresQuotes = TypesRequireQuotes.Contains(type) || ListTypesRequireQuotes.Contains(type);
+            var quote = quoteChar ?? DefaultQuote;
+
+            return requiresQuotes ?
+                $"{quote}{value.ToString()}{quote}" :
+                $"{value.ToString()}";
+        }
+
+        public string EvaluateToString(Expression expression)
+        {
+            var baseMethod = typeof(KqlWhereExpressionVisitor).GetMethod(nameof(Evaluate));
+            var genericMethod = baseMethod.MakeGenericMethod(expression.Type);
+            var result = genericMethod.Invoke(this, new object[] { expression });
+
+            return result.ToString();
         }
 
         public T Evaluate<T>(Expression expression)
