@@ -30,6 +30,16 @@ namespace LinqToKql.Test.Tests.Where
         }
 
         [TestMethod]
+        public void ToKql_WhereStringEqualsOpFlip_Success()
+        {
+            var q = Kql.Create<AzureResource>().Where(x => "test" == x.name);
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual("resources | where 'test' == name", kql);
+        }
+
+        [TestMethod]
         public void ToKql_WhereStringNotEqualsOp_Success()
         {
             var q = Kql.Create<AzureResource>().Where(x => x.name != "test");

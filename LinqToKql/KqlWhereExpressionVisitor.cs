@@ -13,6 +13,7 @@ namespace LinqToKql
                             StringComparison.OrdinalIgnoreCase ];
         private readonly StringComparer[] CaseInsensitiveStringComparers;
 
+        private const string PropertyExpressionTypeName = "PropertyExpression";
 
         private ExpressionType? Modifier;
 
@@ -29,7 +30,15 @@ namespace LinqToKql
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
-            this.Visit(node.Left);
+
+            if (TypeEquals(node.Left.GetType(), name: PropertyExpressionTypeName))
+            {
+                Visit(node.Left);
+            }
+            else
+            {
+                kqlAccumulator.Append(ConvertToQueryValue(node.Left));
+            }
 
             switch (node.NodeType)
             {
@@ -47,7 +56,7 @@ namespace LinqToKql
                     break;
             }
 
-            if (node.Right.GetType().Name == "PropertyExpression")
+            if (TypeEquals(node.Right.GetType(), name: PropertyExpressionTypeName))
             {
                 Visit(node.Right);
             }
@@ -330,6 +339,21 @@ namespace LinqToKql
             return requiresQuotes ?
                 $"{quote}{value.ToString()}{quote}" :
                 $"{value.ToString()}";
+        }
+
+        private bool TypeEquals(Type srcType, Type? type = null, string? name = null)
+        {
+            if (type == null && string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("type and name parameter cannot both be null");
+            }
+
+            if (type != null)
+            {
+                return srcType == type;
+            }
+    
+            return srcType.Name.Equals(name, StringComparison.OrdinalIgnoreCase);
         }
 
         public string EvaluateToString(Expression expression)
