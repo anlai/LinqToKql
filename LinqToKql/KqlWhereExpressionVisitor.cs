@@ -47,7 +47,14 @@ namespace LinqToKql
                     break;
             }
 
-            kqlAccumulator.Append(ConvertToQueryValue(node.Right));
+            if (node.Right.GetType().Name == "PropertyExpression")
+            {
+                Visit(node.Right);
+            }
+            else
+            {
+                kqlAccumulator.Append(ConvertToQueryValue(node.Right));
+            }
 
             return node;
         }
