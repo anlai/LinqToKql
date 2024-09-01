@@ -362,6 +362,18 @@ namespace LinqToKql
             var genericMethod = baseMethod.MakeGenericMethod(expression.Type);
             var result = genericMethod.Invoke(this, new object[] { expression });
 
+            if (expression.Type == typeof(DateTime))
+            {
+                var dt = (DateTime)result;
+                if (dt.Hour == 0 && dt.Minute == 0 && dt.Second == 0)
+                {
+
+                    return $"datetime({dt.ToString("yyyy-MM-dd")})";
+                }
+
+                return $"datetime({dt.ToString("yyyy-MM-dd HH:mm:ss")})";
+            }
+
             return result.ToString();
         }
 

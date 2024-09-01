@@ -22,6 +22,8 @@ namespace LinqToKql.Test.Models
         public AzureResourceProperties properties { get; set; }
         public Dictionary<string,string> tags { get; set; }
 
+        public DateTime dateCreated { get; set; }
+
     }
 
     /// <summary>
