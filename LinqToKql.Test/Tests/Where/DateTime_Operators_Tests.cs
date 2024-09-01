@@ -69,8 +69,45 @@ namespace LinqToKql.Test.Tests.Where
             Assert.AreEqual(ResultEqualsDateTime, kql);
         }
 
+        [TestMethod]
+        public void ToKql_DateTimeLessThanToday_Success()
+        {
+            var q = Kql.Create<AzureResource>().Where(x => x.dateCreated < DateTime.Now);
 
+            var kql = q.ToKql();
 
+            Assert.AreEqual("resources | where dateCreated < now()", kql);
+        }
+
+        [TestMethod]
+        public void ToKql_DateTimeLessThanEqualToday_Success()
+        {
+            var q = Kql.Create<AzureResource>().Where(x => x.dateCreated <= DateTime.Now);
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual("resources | where dateCreated <= now()", kql);
+        }
+
+        [TestMethod]
+        public void ToKql_DateTimeGreaterThanToday_Success()
+        {
+            var q = Kql.Create<AzureResource>().Where(x => x.dateCreated > DateTime.Now);
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual("resources | where dateCreated > now()", kql);
+        }
+
+        [TestMethod]
+        public void ToKql_DateTimeGreaterEqualThanToday_Success()
+        {
+            var q = Kql.Create<AzureResource>().Where(x => x.dateCreated >= DateTime.Now);
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual("resources | where dateCreated >= now()", kql);
+        }
 
         // equals
         // now vs artibrary date

@@ -30,7 +30,6 @@ namespace LinqToKql
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
-
             if (TypeEquals(node.Left.GetType(), name: PropertyExpressionTypeName))
             {
                 Visit(node.Left);
@@ -54,6 +53,172 @@ namespace LinqToKql
                 case ExpressionType.AndAlso:
                     kqlAccumulator.Append(" and ");
                     break;
+                case ExpressionType.LessThan:
+                    kqlAccumulator.Append(" < ");
+                    break;
+                case ExpressionType.LessThanOrEqual:
+                    kqlAccumulator.Append(" <= ");
+                    break;
+                case ExpressionType.GreaterThan:
+                    kqlAccumulator.Append(" > ");
+                    break;
+                case ExpressionType.GreaterThanOrEqual:
+                    kqlAccumulator.Append(" >= ");
+                    break;
+                case ExpressionType.Add:
+                    throw new NotImplementedException();
+                case ExpressionType.AddChecked:
+                    throw new NotImplementedException();
+                case ExpressionType.And:
+                    throw new NotImplementedException();
+                case ExpressionType.ArrayLength:
+                    throw new NotImplementedException();
+                case ExpressionType.ArrayIndex:
+                    throw new NotImplementedException();
+                case ExpressionType.Call:
+                    throw new NotImplementedException();
+                case ExpressionType.Coalesce:
+                    throw new NotImplementedException();
+                case ExpressionType.Conditional:
+                    throw new NotImplementedException();
+                case ExpressionType.Constant:
+                    throw new NotImplementedException();
+                case ExpressionType.Convert:
+                    throw new NotImplementedException();
+                case ExpressionType.ConvertChecked:
+                    throw new NotImplementedException();
+                case ExpressionType.Divide:
+                    throw new NotImplementedException();
+                case ExpressionType.ExclusiveOr:
+                    throw new NotImplementedException();
+                case ExpressionType.Invoke:
+                    throw new NotImplementedException();
+                case ExpressionType.Lambda:
+                    throw new NotImplementedException();
+                case ExpressionType.LeftShift:
+                    throw new NotImplementedException();
+                case ExpressionType.ListInit:
+                    throw new NotImplementedException();
+                case ExpressionType.MemberAccess:
+                    throw new NotImplementedException();
+                case ExpressionType.MemberInit:
+                    throw new NotImplementedException();
+                case ExpressionType.Modulo:
+                    throw new NotImplementedException();
+                case ExpressionType.Multiply:
+                    throw new NotImplementedException();
+                case ExpressionType.MultiplyChecked:
+                    throw new NotImplementedException();
+                case ExpressionType.Negate:
+                    throw new NotImplementedException();
+                case ExpressionType.UnaryPlus:
+                    throw new NotImplementedException();
+                case ExpressionType.NegateChecked:
+                    throw new NotImplementedException();
+                case ExpressionType.New:
+                    throw new NotImplementedException();
+                case ExpressionType.NewArrayInit:
+                    throw new NotImplementedException();
+                case ExpressionType.NewArrayBounds:
+                    throw new NotImplementedException();
+                case ExpressionType.Not:
+                    throw new NotImplementedException();
+                case ExpressionType.Or:
+                    throw new NotImplementedException();
+                case ExpressionType.Parameter:
+                    throw new NotImplementedException();
+                case ExpressionType.Power:
+                    throw new NotImplementedException();
+                case ExpressionType.Quote:
+                    throw new NotImplementedException();
+                case ExpressionType.RightShift:
+                    throw new NotImplementedException();
+                case ExpressionType.Subtract:
+                    throw new NotImplementedException();
+                case ExpressionType.SubtractChecked:
+                    throw new NotImplementedException();
+                case ExpressionType.TypeAs:
+                    throw new NotImplementedException();
+                case ExpressionType.TypeIs:
+                    throw new NotImplementedException();
+                case ExpressionType.Assign:
+                    throw new NotImplementedException();
+                case ExpressionType.Block:
+                    throw new NotImplementedException();
+                case ExpressionType.DebugInfo:
+                    throw new NotImplementedException();
+                case ExpressionType.Decrement:
+                    throw new NotImplementedException();
+                case ExpressionType.Dynamic:
+                    throw new NotImplementedException();
+                case ExpressionType.Default:
+                    throw new NotImplementedException();
+                case ExpressionType.Extension:
+                    throw new NotImplementedException();
+                case ExpressionType.Goto:
+                    throw new NotImplementedException();
+                case ExpressionType.Increment:
+                    throw new NotImplementedException();
+                case ExpressionType.Index:
+                    throw new NotImplementedException();
+                case ExpressionType.Label:
+                    throw new NotImplementedException();
+                case ExpressionType.RuntimeVariables:
+                    throw new NotImplementedException();
+                case ExpressionType.Loop:
+                    throw new NotImplementedException();
+                case ExpressionType.Switch:
+                    throw new NotImplementedException();
+                case ExpressionType.Throw:
+                    throw new NotImplementedException();
+                case ExpressionType.Try:
+                    throw new NotImplementedException();
+                case ExpressionType.Unbox:
+                    throw new NotImplementedException();
+                case ExpressionType.AddAssign:
+                    throw new NotImplementedException();
+                case ExpressionType.AndAssign:
+                    throw new NotImplementedException();
+                case ExpressionType.DivideAssign:
+                    throw new NotImplementedException();
+                case ExpressionType.ExclusiveOrAssign:
+                    throw new NotImplementedException();
+                case ExpressionType.LeftShiftAssign:
+                    throw new NotImplementedException();
+                case ExpressionType.ModuloAssign:
+                    throw new NotImplementedException();
+                case ExpressionType.MultiplyAssign:
+                    throw new NotImplementedException();
+                case ExpressionType.OrAssign:
+                    throw new NotImplementedException();
+                case ExpressionType.PowerAssign:
+                    throw new NotImplementedException();
+                case ExpressionType.RightShiftAssign:
+                    throw new NotImplementedException();
+                case ExpressionType.SubtractAssign:
+                    throw new NotImplementedException();
+                case ExpressionType.AddAssignChecked:
+                    throw new NotImplementedException();
+                case ExpressionType.MultiplyAssignChecked:
+                    throw new NotImplementedException();
+                case ExpressionType.SubtractAssignChecked:
+                    throw new NotImplementedException();
+                case ExpressionType.PreIncrementAssign:
+                    throw new NotImplementedException();
+                case ExpressionType.PreDecrementAssign:
+                    throw new NotImplementedException();
+                case ExpressionType.PostIncrementAssign:
+                    throw new NotImplementedException();
+                case ExpressionType.PostDecrementAssign:
+                    throw new NotImplementedException();
+                case ExpressionType.TypeEqual:
+                    throw new NotImplementedException();
+                case ExpressionType.OnesComplement:
+                    throw new NotImplementedException();
+                case ExpressionType.IsTrue:
+                    throw new NotImplementedException();
+                case ExpressionType.IsFalse:
+                    throw new NotImplementedException();
             }
 
             if (TypeEquals(node.Right.GetType(), name: PropertyExpressionTypeName))
@@ -168,7 +333,15 @@ namespace LinqToKql
 
         protected override Expression VisitMember(MemberExpression node)
         {
-            this.kqlAccumulator.Append(node.Member.Name);
+            if (node.Type == typeof(DateTime) && node.Member.Name == "Now")
+            {
+                kqlAccumulator.Append("now()");
+            }
+            else
+            {
+                kqlAccumulator.Append(node.Member.Name);
+            }
+            
             return node;
         }
 
