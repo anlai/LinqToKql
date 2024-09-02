@@ -225,6 +225,26 @@ namespace LinqToKql
             {
                 Visit(node.Right);
             }
+            else if (typeof(MethodCallExpression).IsInstanceOfType(node.Right))
+            {
+                var methodExpr = node.Right as MethodCallExpression;
+
+                if (methodExpr.Object.Type == typeof(DateTime))
+                {
+
+                    var interval = methodExpr.Method.Name switch
+                    {
+                        nameof(DateTime.AddMinutes) => "minute",
+                        nameof(DateTime.AddHours) => "hour",
+                        nameof(DateTime.AddDays) => "day",
+                        nameof(DateTime.AddMonths) => "month",
+                        nameof(DateTime.AddYears) => "year",
+                        _ => throw new NotImplementedException($"Evaluation of method DateTime.{methodExpr.Method.Name} not supported")
+                    };
+
+                    kqlAccumulator.Append($"datetime_add('{interval}',{ConvertToQueryValue(methodExpr.Arguments[0])},now())");
+                }
+            }
             else
             {
                 kqlAccumulator.Append(ConvertToQueryValue(node.Right));

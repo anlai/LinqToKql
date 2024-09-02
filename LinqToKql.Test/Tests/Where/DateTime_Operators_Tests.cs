@@ -109,14 +109,64 @@ namespace LinqToKql.Test.Tests.Where
             Assert.AreEqual("resources | where dateCreated >= now()", kql);
         }
 
-        // equals
-        // now vs artibrary date
-        // <
-        // >
-        // date + time period
-        // date - time period
-        // now
+        [DataRow(1)]
+        [DataRow(-1)]
+        [DataTestMethod]
+        public void ToKql_DateTimeNowAddMinute_Success(int minutes) 
+        { 
+            var q = Kql.Create<AzureResource>().Where(x => x.dateCreated < DateTime.Now.AddMinutes(minutes));
 
+            var kql = q.ToKql();
 
+            Assert.AreEqual($"resources | where dateCreated < datetime_add('minute',{minutes},now())", kql);
+        }
+
+        [DataRow(1)]
+        [DataRow(-1)]
+        [DataTestMethod]
+        public void ToKql_DateTimeNowAddHour_Success(int hours) 
+        {
+            var q = Kql.Create<AzureResource>().Where(x => x.dateCreated < DateTime.Now.AddHours(hours));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual($"resources | where dateCreated < datetime_add('hour',{hours},now())", kql);
+        }
+
+        [DataRow(1)]
+        [DataRow(-1)]
+        [DataTestMethod]
+        public void ToKql_DateTimeNowAddDay_Success(int days) 
+        {
+            var q = Kql.Create<AzureResource>().Where(x => x.dateCreated < DateTime.Now.AddDays(days));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual($"resources | where dateCreated < datetime_add('day',{days},now())", kql);
+        }
+
+        [DataRow(1)]
+        [DataRow(-1)]
+        [DataTestMethod]
+        public void ToKql_DateTimeNowAddMonth_Success(int months) 
+        {
+            var q = Kql.Create<AzureResource>().Where(x => x.dateCreated < DateTime.Now.AddMonths(months));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual($"resources | where dateCreated < datetime_add('month',{months},now())", kql);
+        }
+
+        [DataRow(1)]
+        [DataRow(-1)]
+        [DataTestMethod]
+        public void ToKql_DateTimeNowAddYear_Success(int years) 
+        {
+            var q = Kql.Create<AzureResource>().Where(x => x.dateCreated < DateTime.Now.AddYears(years));
+
+            var kql = q.ToKql();
+
+            Assert.AreEqual($"resources | where dateCreated < datetime_add('year',{years},now())", kql);
+        }
     }
 }
